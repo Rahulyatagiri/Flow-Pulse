@@ -45,6 +45,13 @@ flowpulse/
 ├── js/
 │   ├── data.js         # Options flow data
 │   └── app.js          # Application logic
+├── data/
+│   ├── README.md       # Excel upload instructions
+│   ├── excel_to_data.py # Excel to JS converter
+│   └── requirements.txt # Python dependencies
+├── .github/
+│   └── workflows/
+│       └── deploy.yml  # Auto-deployment workflow
 └── README.md           # This file
 ```
 
@@ -82,11 +89,39 @@ python -m http.server 8000
 
 ## 📊 Updating Data
 
-To update the options flow data:
+### Option 1: Upload Excel File (Recommended) 📁
 
-1. Edit `js/data.js`
-2. Update the `flowData` object with new values
-3. Commit and push changes
+The easiest way to update your flow data is via Excel:
+
+1. **Place your Excel file** in the `data/` folder:
+   ```bash
+   cp ~/Downloads/flow_data.xlsx data/flow_data.xlsx
+   ```
+
+2. **Install Python dependencies**:
+   ```bash
+   pip install -r data/requirements.txt
+   ```
+
+3. **Convert Excel to JavaScript**:
+   ```bash
+   python data/excel_to_data.py data/flow_data.xlsx
+   ```
+
+4. **Commit and push**:
+   ```bash
+   git add js/data.js
+   git commit -m "Update flow data"
+   git push origin main
+   ```
+
+5. **Auto-deploy**: GitHub Actions will automatically update your live site! ✨
+
+📋 **See [data/README.md](data/README.md) for Excel file format and complete instructions.**
+
+### Option 2: Edit JavaScript Directly
+
+For manual updates, edit `js/data.js`:
 
 ```javascript
 // Example: Update bullish stocks
