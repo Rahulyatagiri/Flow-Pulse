@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FlowPulse - Real-time options flow analysis and stock market insights">
+    <meta name="keywords" content="options flow, stock analysis, trading, market insights">
+    <meta property="og:title" content="FlowPulse | Options Flow Intelligence">
+    <meta property="og:description" content="Real-time options flow analysis and stock market insights">
+    <meta property="og:type" content="website">
+    <title>FlowPulse | Options Flow Intelligence</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">FP</span>
+                <span class="logo-text">FlowPulse</span>
+            </div>
+            <div class="nav-links">
+                <a href="#dashboard" class="nav-link active">Dashboard</a>
+                <a href="#analysis" class="nav-link">Analysis</a>
+                <a href="#insights" class="nav-link">Insights</a>
+            </div>
+            <div class="nav-actions">
+                <span class="live-indicator">
+                    <span class="pulse-dot"></span>
+                    Live Data
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">Options Flow Intelligence</h1>
+                <p class="hero-subtitle">Real-time analysis of institutional options activity to identify high-probability trading opportunities</p>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <span class="stat-value" id="totalPremium">$32.4M</span>
+                        <span class="stat-label">Total Premium</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="stat-value" id="bullishSignals">15</span>
+                        <span class="stat-label">Bullish Signals</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="stat-value" id="callPutRatio">1.42</span>
+                        <span class="stat-label">Call/Put Ratio</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="stat-value" id="uniqueTickers">127</span>
+                        <span class="stat-label">Active Tickers</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring delay-1"></div>
+                <div class="pulse-ring delay-2"></div>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section">
+            <div class="section-header">
+                <h2 class="section-title">📊 Live Dashboard</h2>
+                <p class="section-subtitle">December 31, 2025 Options Flow</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Top Bullish Flow -->
+                <div class="card card-bullish">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span class="card-icon">🚀</span>
+                            Top Bullish Flow
+                        </div>
+                        <span class="card-badge badge-green">Call Heavy</span>
+                    </div>
+                    <div class="stock-list" id="bullishList">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Best Risk/Reward -->
+                <div class="card card-reward">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span class="card-icon">⚖️</span>
+                            Best Risk/Reward
+                        </div>
+                        <span class="card-badge badge-gold">Low IV</span>
+                    </div>
+                    <div class="stock-list" id="riskRewardList">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Highest Premium -->
+                <div class="card card-premium">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span class="card-icon">💰</span>
+                            Highest Interest
+                        </div>
+                        <span class="card-badge badge-blue">By Premium</span>
+                    </div>
+                    <div class="stock-list" id="premiumList">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analysis Section -->
+        <section id="analysis" class="section">
+            <div class="section-header">
+                <h2 class="section-title">📈 Flow Analysis</h2>
+                <p class="section-subtitle">Premium distribution and sentiment breakdown</p>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title">Premium by Ticker</h3>
+                    <div class="chart-container">
+                        <canvas id="premiumChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title">Market Sentiment</h3>
+                    <div class="chart-container">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Flow Table -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3 class="table-title">📋 Detailed Options Flow</h3>
+                    <div class="table-filters">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="calls">Calls</button>
+                        <button class="filter-btn" data-filter="puts">Puts</button>
+                        <button class="filter-btn" data-filter="unusual">Unusual</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="flow-table">
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Type</th>
+                                <th>Strike</th>
+                                <th>Exp</th>
+                                <th>Premium</th>
+                                <th>Volume</th>
+                                <th>IV</th>
+                                <th>Sentiment</th>
+                            </tr>
+                        </thead>
+                        <tbody id="flowTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Insights Section -->
+        <section id="insights" class="section">
+            <div class="section-header">
+                <h2 class="section-title">🔑 Key Insights</h2>
+                <p class="section-subtitle">Actionable intelligence from today's flow</p>
+            </div>
+
+            <div class="insights-grid">
+                <div class="insight-card insight-bullish">
+                    <div class="insight-icon">🎯</div>
+                    <div class="insight-content">
+                        <h4>Best Bullish Setup: TSLA</h4>
+                        <p>Strongest call flow with $4.09M in call premium vs $600K puts. 74% bullish sentiment with heavy near-term positioning across $440-$470 strikes.</p>
+                        <div class="insight-meta">
+                            <span class="meta-tag">High Conviction</span>
+                            <span class="meta-tag">Near-term</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insight-card insight-value">
+                    <div class="insight-icon">💎</div>
+                    <div class="insight-content">
+                        <h4>Best Risk/Reward: MCD & BAC</h4>
+                        <p>Both show 100% bullish flow with very low implied volatility (15-22%). Lower IV means cheaper options with better reward potential.</p>
+                        <div class="insight-meta">
+                            <span class="meta-tag">Low IV</span>
+                            <span class="meta-tag">Value Play</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insight-card insight-sector">
+                    <div class="insight-icon">🔬</div>
+                    <div class="insight-content">
+                        <h4>Semiconductor Conviction</h4>
+                        <p>Strong call-heavy flow across NVDA ($1.39M), MU ($1.05M), and SMCI ($717K). Sector rotation into chips continues heading into 2026.</p>
+                        <div class="insight-meta">
+                            <span class="meta-tag">Sector Play</span>
+                            <span class="meta-tag">AI Theme</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insight-card insight-caution">
+                    <div class="insight-icon">⚠️</div>
+                    <div class="insight-content">
+                        <h4>Avoid: Crypto Miners</h4>
+                        <p>Massive put hedging in IREN, HUT, MARA indicates institutional de-risking. -77% to -93% bearish sentiment with millions in protective puts.</p>
+                        <div class="insight-meta">
+                            <span class="meta-tag">Bearish Flow</span>
+                            <span class="meta-tag">Year-end Hedging</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Top Picks Section -->
+        <section class="section picks-section">
+            <div class="section-header">
+                <h2 class="section-title">🏆 Top Picks for Returns</h2>
+                <p class="section-subtitle">Based on flow fundamentals and risk/reward analysis</p>
+            </div>
+
+            <div class="picks-grid">
+                <div class="pick-card pick-1">
+                    <div class="pick-rank">1</div>
+                    <div class="pick-header">
+                        <span class="pick-symbol">TSLA</span>
+                        <span class="pick-badge">Best Overall</span>
+                    </div>
+                    <div class="pick-price">$455.15</div>
+                    <div class="pick-stats">
+                        <div class="pick-stat">
+                            <span class="stat-label">Call Premium</span>
+                            <span class="stat-value green">$4.09M</span>
+                        </div>
+                        <div class="pick-stat">
+                            <span class="stat-label">Sentiment</span>
+                            <span class="stat-value green">74% Bullish</span>
+                        </div>
+                    </div>
+                    <div class="pick-reason">Heaviest conviction, multiple strike accumulation, near-term catalyst positioning</div>
+                </div>
+
+                <div class="pick-card pick-2">
+                    <div class="pick-rank">2</div>
+                    <div class="pick-header">
+                        <span class="pick-symbol">MCD</span>
+                        <span class="pick-badge">Best Risk/Reward</span>
+                    </div>
+                    <div class="pick-price">$305.98</div>
+                    <div class="pick-stats">
+                        <div class="pick-stat">
+                            <span class="stat-label">Premium</span>
+                            <span class="stat-value gold">$640K</span>
+                        </div>
+                        <div class="pick-stat">
+                            <span class="stat-label">IV</span>
+                            <span class="stat-value gold">15.5%</span>
+                        </div>
+                    </div>
+                    <div class="pick-reason">100% call flow + very low IV = optimal risk/reward ratio</div>
+                </div>
+
+                <div class="pick-card pick-3">
+                    <div class="pick-rank">3</div>
+                    <div class="pick-header">
+                        <span class="pick-symbol">NVDA</span>
+                        <span class="pick-badge">Tech Leader</span>
+                    </div>
+                    <div class="pick-price">$188.89</div>
+                    <div class="pick-stats">
+                        <div class="pick-stat">
+                            <span class="stat-label">Call Premium</span>
+                            <span class="stat-value blue">$1.39M</span>
+                        </div>
+                        <div class="pick-stat">
+                            <span class="stat-label">Sentiment</span>
+                            <span class="stat-value blue">70% Bullish</span>
+                        </div>
+                    </div>
+                    <div class="pick-reason">AI momentum continues, consistent OTM call accumulation</div>
+                </div>
+
+                <div class="pick-card pick-4">
+                    <div class="pick-rank">4</div>
+                    <div class="pick-header">
+                        <span class="pick-symbol">BAC</span>
+                        <span class="pick-badge">Value Play</span>
+                    </div>
+                    <div class="pick-price">$54.94</div>
+                    <div class="pick-stats">
+                        <div class="pick-stat">
+                            <span class="stat-label">Premium</span>
+                            <span class="stat-value purple">$818K</span>
+                        </div>
+                        <div class="pick-stat">
+                            <span class="stat-label">IV</span>
+                            <span class="stat-value purple">22.3%</span>
+                        </div>
+                    </div>
+                    <div class="pick-reason">Financial sector strength, low IV, institutional buying</div>
+                </div>
+
+                <div class="pick-card pick-5">
+                    <div class="pick-rank">5</div>
+                    <div class="pick-header">
+                        <span class="pick-symbol">AMZN</span>
+                        <span class="pick-badge">Blue Chip</span>
+                    </div>
+                    <div class="pick-price">$231.36</div>
+                    <div class="pick-stats">
+                        <div class="pick-stat">
+                            <span class="stat-label">Premium</span>
+                            <span class="stat-value cyan">$574K</span>
+                        </div>
+                        <div class="pick-stat">
+                            <span class="stat-label">IV</span>
+                            <span class="stat-value cyan">28.8%</span>
+                        </div>
+                    </div>
+                    <div class="pick-reason">LEAPS buying suggests long-term institutional conviction</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <span class="logo-icon">FP</span>
+                <span class="logo-text">FlowPulse</span>
+            </div>
+            <p class="footer-disclaimer">For informational purposes only. Not financial advice. Options trading involves significant risk.</p>
+            <p class="footer-copyright">© 2025 FlowPulse. Data as of December 31, 2025.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
