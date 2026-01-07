@@ -1,520 +1,242 @@
-// InsiderPulse - Main Application JavaScript
-// Handles UI rendering, filtering, sorting, search, and interactivity
+// FlowPulse - Unusual Options Activity Tracker
+// Renders flow feed, clusters, insights, and handles filtering
 
 document.addEventListener('DOMContentLoaded', () => {
     initApp();
 });
 
 // Global state
-let currentTransactions = [...insiderData.recentTransactions];
-let sortColumn = 'date';
-let sortDirection = 'desc';
+let currentFlowData = [...flowData.unusualTrades];
 
 function initApp() {
     updateHeroStats();
-    renderDashboardCards();
-    renderTransactionsTable();
-    renderClusterSection();
-    initCharts();
-    initSearch();
+    renderFlowFeed(currentFlowData);
+    renderClusters();
+    renderTopTickers();
     initFilters();
-    initSorting();
     initExport();
-    initSmoothScroll();
-    animateOnScroll();
 }
 
 // ============================================
-// Hero Stats Update
+// Hero Stats
 // ============================================
 
 function updateHeroStats() {
-    const { summary } = insiderData;
+    const { summary } = flowData;
 
-    document.getElementById('totalValue').textContent = formatCurrency(summary.totalValue);
-    document.getElementById('buyTransactions').textContent = summary.buyTransactions;
-    document.getElementById('buySellRatio').textContent = summary.buySellRatio.toFixed(2);
-    document.getElementById('clusterBuys').textContent = summary.clusterBuyCount;
+    document.getElementById('statTrades').textContent = summary.totalTrades;
+    document.getElementById('statPremium').textContent = formatCurrency(summary.totalPremium);
+    document.getElementById('statBullish').textContent = summary.bullishTrades;
+    document.getElementById('statBearish').textContent = summary.bearishTrades;
+    document.getElementById('statClusters').textContent = summary.clusterCount;
 }
 
 // ============================================
-// Dashboard Cards Rendering
+// Flow Feed Rendering
 // ============================================
 
-function renderDashboardCards() {
-    renderClusterList();
-    renderPurchasesList();
-    renderActivityList();
-}
+function renderFlowFeed(data) {
+    const container = document.getElementById('flowFeed');
+    const countElement = document.getElementById('flowCount');
 
-function renderClusterList() {
-    const container = document.getElementById('clusterList');
     if (!container) return;
 
-    const clusters = insiderData.clusterBuys;
+    countElement.textContent = data.length;
 
-    if (clusters.length === 0) {
-        container.innerHTML = '<div class="empty-state">No cluster buys detected</div>';
-        return;
-    }
-
-    container.innerHTML = clusters.map(cluster => `
-        <div class="cluster-item">
-            <div class="stock-info">
-                <div class="stock-symbol">${cluster.ticker}</div>
-                <div class="stock-company">${cluster.insiderCount} insiders</div>
-            </div>
-            <div class="stock-metrics">
-                <div class="stock-value">${formatCurrency(cluster.totalValue)}</div>
-                <div class="stock-count">${cluster.totalShares.toLocaleString()} shares</div>
-            </div>
-        </div>
-    `).join('');
-}
-
-function renderPurchasesList() {
-    const container = document.getElementById('purchasesList');
-    if (!container) return;
-
-    const purchases = insiderData.significantPurchases.slice(0, 5);
-
-    container.innerHTML = purchases.map((item, index) => {
-        const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-default';
-        return `
-            <div class="stock-item">
-                <div class="stock-rank ${rankClass}">${index + 1}</div>
-                <div class="stock-info">
-                    <div class="stock-symbol">${item.ticker}</div>
-                    <div class="stock-company">${item.company}</div>
-                </div>
-                <div class="stock-metrics">
-                    <div class="stock-value">${formatCurrency(item.totalValue)}</div>
-                    <div class="stock-count">${item.transactionCount} transaction${item.transactionCount > 1 ? 's' : ''}</div>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-function renderActivityList() {
-    const container = document.getElementById('activityList');
-    if (!container) return;
-
-    const activity = insiderData.topBuyers.slice(0, 5);
-
-    container.innerHTML = activity.map((item, index) => {
-        const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-default';
-        const typeColor = item.type === 'P' ? 'green' : 'red';
-        return `
-            <div class="stock-item">
-                <div class="stock-rank ${rankClass}">${index + 1}</div>
-                <div class="stock-info">
-                    <div class="stock-symbol">${item.ticker}</div>
-                    <div class="stock-company">${item.insider}</div>
-                </div>
-                <div class="stock-metrics">
-                    <div class="stock-value ${typeColor}">${formatCurrency(item.value)}</div>
-                    <div class="stock-count">${item.type === 'P' ? 'Purchase' : 'Sale'}</div>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-// ============================================
-// Transactions Table
-// ============================================
-
-function renderTransactionsTable(transactions = currentTransactions) {
-    const tbody = document.getElementById('transactionsTableBody');
-    if (!tbody) return;
-
-    if (transactions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 40px; color: var(--text-muted);">No transactions found</td></tr>';
-        document.getElementById('transactionCount').textContent = '0 transactions';
-        return;
-    }
-
-    tbody.innerHTML = transactions.map(tx => {
-        const typeInfo = transactionTypes[tx.transactionType] || { label: 'Unknown', color: 'gray', icon: '📊' };
-        const typeClass = tx.transactionType === 'P' ? 'type-purchase' : tx.transactionType === 'S' ? 'type-sale' : 'type-option';
-        const ownershipClass = tx.ownershipChange >= 0 ? 'ownership-positive' : 'ownership-negative';
-        const clusterClass = tx.isCluster ? 'cluster-row' : '';
-
-        return `
-            <tr class="${clusterClass}">
-                <td class="mono">${formatDate(tx.date)}</td>
-                <td class="mono">${tx.ticker}</td>
-                <td>${tx.company}</td>
-                <td>${tx.insider}</td>
-                <td style="font-size: 0.8rem; color: var(--text-muted);">${tx.title}</td>
-                <td>
-                    <span class="transaction-type ${typeClass}">
-                        ${typeInfo.icon} ${typeInfo.label}
-                    </span>
-                </td>
-                <td class="mono">${tx.shares.toLocaleString()}</td>
-                <td class="mono">$${tx.pricePerShare.toFixed(2)}</td>
-                <td class="mono gold">${formatCurrency(tx.value)}</td>
-                <td class="ownership-change ${ownershipClass}">
-                    ${tx.ownershipChange >= 0 ? '+' : ''}${tx.ownershipChange.toFixed(2)}%
-                </td>
-            </tr>
-        `;
-    }).join('');
-
-    document.getElementById('transactionCount').textContent = `${transactions.length} transaction${transactions.length !== 1 ? 's' : ''}`;
-}
-
-// ============================================
-// Cluster Section
-// ============================================
-
-function renderClusterSection() {
-    const container = document.getElementById('clusterGrid');
-    if (!container) return;
-
-    const clusters = insiderData.clusterBuys;
-
-    if (clusters.length === 0) {
+    if (data.length === 0) {
         container.innerHTML = `
-            <div style="grid-column: 1 / -1; text-align: center; padding: 60px; color: var(--text-muted);">
-                <div style="font-size: 3rem; margin-bottom: 16px;">🎯</div>
-                <h3>No Cluster Buys Detected</h3>
-                <p>When multiple insiders buy the same stock within 7 days, they'll appear here.</p>
+            <div style="text-align: center; padding: 60px 20px; color: var(--text-muted);">
+                <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+                <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">No unusual trades found</div>
+                <div style="font-size: 14px;">Try adjusting your filters</div>
             </div>
         `;
         return;
     }
 
-    container.innerHTML = clusters.map(cluster => `
-        <div class="cluster-card">
-            <div class="cluster-header">
-                <div class="cluster-ticker">${cluster.ticker}</div>
-                <div class="cluster-badge">${cluster.insiderCount} Insiders</div>
+    container.innerHTML = data.map(trade => {
+        const alertInfo = alertLevels[trade.alertLevel];
+        const typeClass = trade.type.toLowerCase();
+
+        return `
+            <div class="flow-card">
+                <div class="flow-card-left">
+                    <div class="flow-symbol">${trade.symbol}</div>
+                    <div class="flow-type ${typeClass}">${trade.type}</div>
+                    ${trade.cluster ? `<div class="cluster-tag">🎯 CLUSTER (${trade.clusterCount})</div>` : ''}
+                </div>
+
+                <div class="flow-card-center">
+                    <div class="flow-metric">
+                        <div class="metric-label">Strike / Expiry</div>
+                        <div class="metric-value">$${trade.strike} · ${formatExpiry(trade.expiry)}</div>
+                    </div>
+                    <div class="flow-metric">
+                        <div class="metric-label">Premium</div>
+                        <div class="metric-value large">${formatCurrency(trade.premium)}</div>
+                    </div>
+                    <div class="flow-metric">
+                        <div class="metric-label">Volume / OI</div>
+                        <div class="metric-value">${trade.volume.toLocaleString()} / ${trade.openInterest.toLocaleString()}</div>
+                    </div>
+                    <div class="flow-metric">
+                        <div class="metric-label">Vol/OI Ratio</div>
+                        <div class="metric-value">${trade.volumeOI.toFixed(2)}</div>
+                    </div>
+                    <div class="flow-metric">
+                        <div class="metric-label">IV · Delta</div>
+                        <div class="metric-value">${(trade.iv * 100).toFixed(1)}% · ${trade.delta.toFixed(2)}</div>
+                    </div>
+                </div>
+
+                <div class="flow-card-right">
+                    <div class="alert-badge ${trade.alertLevel}">${alertInfo.icon} ${alertInfo.label}</div>
+                    <div class="flow-reason">${trade.reason}</div>
+                </div>
             </div>
-            <div class="cluster-company">${cluster.company}</div>
-            <div class="cluster-stats">
-                <div class="cluster-stat">
-                    <div class="cluster-stat-label">Total Value</div>
-                    <div class="cluster-stat-value">${formatCurrency(cluster.totalValue)}</div>
+        `;
+    }).join('');
+}
+
+// ============================================
+// Cluster Cards Rendering
+// ============================================
+
+function renderClusters() {
+    const container = document.getElementById('clustersGrid');
+    if (!container) return;
+
+    const { clusters } = flowData;
+
+    container.innerHTML = clusters.map(cluster => {
+        const typeClass = cluster.type.toLowerCase();
+
+        return `
+            <div class="cluster-card">
+                <div class="cluster-header">
+                    <div class="cluster-symbol-group">
+                        <div class="cluster-symbol">${cluster.symbol}</div>
+                        <div class="flow-type ${typeClass}">${cluster.type}</div>
+                    </div>
+                    <div class="cluster-count-badge">
+                        🎯 ${cluster.tradeCount} Buyers
+                    </div>
                 </div>
-                <div class="cluster-stat">
-                    <div class="cluster-stat-label">Total Shares</div>
-                    <div class="cluster-stat-value">${cluster.totalShares.toLocaleString()}</div>
+
+                <div class="cluster-details">
+                    <div class="cluster-detail">
+                        <div class="cluster-detail-label">Strike / Expiry</div>
+                        <div class="cluster-detail-value">$${cluster.strike} · ${formatExpiry(cluster.expiry)}</div>
+                    </div>
+                    <div class="cluster-detail">
+                        <div class="cluster-detail-label">Total Premium</div>
+                        <div class="cluster-detail-value">${formatCurrency(cluster.totalPremium)}</div>
+                    </div>
+                    <div class="cluster-detail">
+                        <div class="cluster-detail-label">Total Volume</div>
+                        <div class="cluster-detail-value">${cluster.totalVolume.toLocaleString()}</div>
+                    </div>
+                    <div class="cluster-detail">
+                        <div class="cluster-detail-label">IV</div>
+                        <div class="cluster-detail-value">${(cluster.iv * 100).toFixed(1)}%</div>
+                    </div>
                 </div>
-                <div class="cluster-stat">
-                    <div class="cluster-stat-label">Avg Price</div>
-                    <div class="cluster-stat-value">$${cluster.avgPrice.toFixed(2)}</div>
-                </div>
-                <div class="cluster-stat">
-                    <div class="cluster-stat-label">Date</div>
-                    <div class="cluster-stat-value" style="font-size: 0.9rem;">${formatDate(cluster.dateRange)}</div>
-                </div>
+
+                <div class="cluster-reason">${cluster.reason}</div>
             </div>
-            <div class="cluster-insiders">
-                <div class="cluster-insiders-label">INSIDERS</div>
-                <div class="cluster-insiders-list">${cluster.insiders.join(', ')}</div>
+        `;
+    }).join('');
+}
+
+// ============================================
+// Top Tickers Rendering
+// ============================================
+
+function renderTopTickers() {
+    const container = document.getElementById('tickersGrid');
+    if (!container) return;
+
+    const { topTickers } = flowData;
+
+    container.innerHTML = topTickers.map(ticker => {
+        const sentimentClass = ticker.sentiment.toLowerCase();
+
+        return `
+            <div class="ticker-card">
+                <div class="ticker-symbol">${ticker.symbol}</div>
+                <div class="ticker-stats">
+                    <div class="ticker-stat">
+                        <span class="ticker-stat-label">Trades</span>
+                        <span class="ticker-stat-value">${ticker.trades}</span>
+                    </div>
+                    <div class="ticker-stat">
+                        <span class="ticker-stat-label">Premium</span>
+                        <span class="ticker-stat-value">${formatCurrency(ticker.premium)}</span>
+                    </div>
+                    <div class="ticker-stat">
+                        <span class="ticker-stat-label">Avg Vol/OI</span>
+                        <span class="ticker-stat-value">${ticker.avgVolumeOI.toFixed(2)}</span>
+                    </div>
+                </div>
+                <div class="ticker-sentiment ${sentimentClass}">${ticker.sentiment}</div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // ============================================
-// Charts
-// ============================================
-
-function initCharts() {
-    initBuySellChart();
-    initSectorChart();
-}
-
-function initBuySellChart() {
-    const ctx = document.getElementById('buySellChart');
-    if (!ctx) return;
-
-    const { summary } = insiderData;
-
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Buys', 'Sells'],
-            datasets: [{
-                label: 'Transaction Value ($M)',
-                data: [
-                    (summary.buyValue / 1000000).toFixed(1),
-                    (summary.sellValue / 1000000).toFixed(1)
-                ],
-                backgroundColor: [chartColors.green, chartColors.red],
-                borderRadius: 8
-            }, {
-                label: 'Transaction Count',
-                data: [summary.buyTransactions, summary.sellTransactions],
-                backgroundColor: [chartColors.greenDim, chartColors.redDim],
-                borderRadius: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#94a3b8',
-                        font: { family: 'Space Grotesk', size: 12 },
-                        padding: 20
-                    }
-                },
-                tooltip: {
-                    backgroundColor: '#1a1d28',
-                    titleColor: '#f1f5f9',
-                    bodyColor: '#94a3b8',
-                    borderColor: '#1e293b',
-                    borderWidth: 1,
-                    padding: 12
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        color: '#94a3b8',
-                        font: { family: 'Space Grotesk', size: 12 }
-                    },
-                    grid: {
-                        color: 'rgba(30, 41, 59, 0.5)',
-                        drawBorder: false
-                    }
-                },
-                y: {
-                    ticks: {
-                        color: '#94a3b8',
-                        font: { family: 'JetBrains Mono', size: 11 }
-                    },
-                    grid: {
-                        color: 'rgba(30, 41, 59, 0.5)',
-                        drawBorder: false
-                    }
-                }
-            }
-        }
-    });
-}
-
-function initSectorChart() {
-    const ctx = document.getElementById('sectorChart');
-    if (!ctx) return;
-
-    const { sectors } = insiderData;
-    const sectorNames = Object.keys(sectors);
-    const sentiments = sectorNames.map(name => Math.round(sectors[name].netSentiment * 100));
-
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: sectorNames.map(s => s.charAt(0).toUpperCase() + s.slice(1)),
-            datasets: [{
-                data: sentiments,
-                backgroundColor: [
-                    chartColors.green,
-                    chartColors.blue,
-                    chartColors.gold,
-                    chartColors.purple,
-                    chartColors.cyan
-                ],
-                borderColor: '#12141c',
-                borderWidth: 4,
-                hoverOffset: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '65%',
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: '#94a3b8',
-                        font: { family: 'Space Grotesk', size: 11 },
-                        padding: 12,
-                        usePointStyle: true,
-                        pointStyle: 'circle'
-                    }
-                },
-                tooltip: {
-                    backgroundColor: '#1a1d28',
-                    titleColor: '#f1f5f9',
-                    bodyColor: '#94a3b8',
-                    borderColor: '#1e293b',
-                    borderWidth: 1,
-                    padding: 12,
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.label}: ${context.raw}% Bullish`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-// ============================================
-// Search Functionality
-// ============================================
-
-function initSearch() {
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
-
-    if (!searchInput) return;
-
-    searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-
-        if (query.length > 0) {
-            clearBtn.style.display = 'flex';
-            filterTransactions();
-        } else {
-            clearBtn.style.display = 'none';
-            filterTransactions();
-        }
-    });
-
-    clearBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        clearBtn.style.display = 'none';
-        filterTransactions();
-    });
-}
-
-// ============================================
-// Filters
+// Filtering
 // ============================================
 
 function initFilters() {
-    const typeFilter = document.getElementById('transactionTypeFilter');
-    const valueFilter = document.getElementById('valueFilter');
-    const dateFilter = document.getElementById('dateFilter');
+    const searchInput = document.getElementById('searchInput');
+    const alertFilter = document.getElementById('alertFilter');
+    const typeFilter = document.getElementById('typeFilter');
+    const premiumFilter = document.getElementById('premiumFilter');
 
-    [typeFilter, valueFilter, dateFilter].forEach(filter => {
-        if (filter) {
-            filter.addEventListener('change', () => filterTransactions());
+    [searchInput, alertFilter, typeFilter, premiumFilter].forEach(el => {
+        if (el) {
+            el.addEventListener(el.tagName === 'INPUT' ? 'input' : 'change', applyFilters);
         }
     });
 }
 
-function filterTransactions() {
-    const searchQuery = document.getElementById('searchInput')?.value.toLowerCase() || '';
-    const typeFilter = document.getElementById('transactionTypeFilter')?.value || 'all';
-    const valueFilter = parseInt(document.getElementById('valueFilter')?.value) || 0;
-    const dateFilter = parseInt(document.getElementById('dateFilter')?.value) || 7;
+function applyFilters() {
+    const searchQuery = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
+    const alertLevel = document.getElementById('alertFilter')?.value || 'all';
+    const type = document.getElementById('typeFilter')?.value || 'all';
+    const minPremium = parseInt(document.getElementById('premiumFilter')?.value) || 0;
 
-    let filtered = [...insiderData.recentTransactions];
+    let filtered = [...flowData.unusualTrades];
 
     // Search filter
     if (searchQuery) {
-        filtered = filtered.filter(tx =>
-            tx.company.toLowerCase().includes(searchQuery) ||
-            tx.ticker.toLowerCase().includes(searchQuery) ||
-            tx.insider.toLowerCase().includes(searchQuery)
+        filtered = filtered.filter(trade =>
+            trade.symbol.toLowerCase().includes(searchQuery)
         );
     }
 
-    // Transaction type filter
-    if (typeFilter !== 'all') {
-        filtered = filtered.filter(tx => tx.transactionType === typeFilter);
+    // Alert level filter
+    if (alertLevel !== 'all') {
+        filtered = filtered.filter(trade => trade.alertLevel === alertLevel);
     }
 
-    // Value filter
-    if (valueFilter > 0) {
-        filtered = filtered.filter(tx => tx.value >= valueFilter);
+    // Type filter (Call/Put)
+    if (type !== 'all') {
+        filtered = filtered.filter(trade => trade.type === type);
     }
 
-    // Date filter (simplified - in real app would use actual date comparison)
-    // For demo, we're just limiting the number of results
-    const today = new Date();
-    filtered = filtered.filter(tx => {
-        const txDate = new Date(tx.date);
-        const diffDays = Math.floor((today - txDate) / (1000 * 60 * 60 * 24));
-        return diffDays <= dateFilter;
-    });
+    // Minimum premium filter
+    if (minPremium > 0) {
+        filtered = filtered.filter(trade => trade.premium >= minPremium);
+    }
 
-    currentTransactions = filtered;
-    sortTransactions();
+    currentFlowData = filtered;
+    renderFlowFeed(currentFlowData);
 }
 
 // ============================================
-// Sorting
-// ============================================
-
-function initSorting() {
-    const headers = document.querySelectorAll('.insider-table th.sortable');
-
-    headers.forEach(header => {
-        header.addEventListener('click', () => {
-            const column = header.dataset.sort;
-
-            if (sortColumn === column) {
-                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                sortColumn = column;
-                sortDirection = 'desc';
-            }
-
-            // Update header indicators
-            headers.forEach(h => {
-                h.textContent = h.textContent.replace(' ↑', '').replace(' ↓', '');
-            });
-            header.textContent += sortDirection === 'asc' ? ' ↑' : ' ↓';
-
-            sortTransactions();
-        });
-    });
-}
-
-function sortTransactions() {
-    currentTransactions.sort((a, b) => {
-        let aVal, bVal;
-
-        switch (sortColumn) {
-            case 'date':
-                aVal = new Date(a.date);
-                bVal = new Date(b.date);
-                break;
-            case 'ticker':
-            case 'company':
-            case 'insider':
-                aVal = a[sortColumn].toLowerCase();
-                bVal = b[sortColumn].toLowerCase();
-                break;
-            case 'type':
-                aVal = a.transactionType;
-                bVal = b.transactionType;
-                break;
-            case 'shares':
-            case 'price':
-            case 'value':
-            case 'ownership':
-                const field = sortColumn === 'price' ? 'pricePerShare' :
-                             sortColumn === 'ownership' ? 'ownershipChange' : sortColumn;
-                aVal = a[field];
-                bVal = b[field];
-                break;
-            default:
-                return 0;
-        }
-
-        if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-        if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
-        return 0;
-    });
-
-    renderTransactionsTable(currentTransactions);
-}
-
-// ============================================
-// Export Functionality
+// Export
 // ============================================
 
 function initExport() {
@@ -522,112 +244,58 @@ function initExport() {
     if (!exportBtn) return;
 
     exportBtn.addEventListener('click', () => {
-        exportToCSV(currentTransactions);
+        const headers = [
+            'Symbol',
+            'Type',
+            'Strike',
+            'Expiry',
+            'Premium',
+            'Volume',
+            'Open Interest',
+            'Vol/OI Ratio',
+            'Price',
+            'IV',
+            'Delta',
+            'Side',
+            'Sentiment',
+            'Alert Level',
+            'Reason'
+        ];
+
+        const rows = currentFlowData.map(trade => [
+            trade.symbol,
+            trade.type,
+            trade.strike,
+            trade.expiry,
+            trade.premium,
+            trade.volume,
+            trade.openInterest,
+            trade.volumeOI.toFixed(2),
+            trade.price.toFixed(2),
+            (trade.iv * 100).toFixed(1) + '%',
+            trade.delta.toFixed(2),
+            trade.side,
+            trade.sentiment,
+            trade.alertLevel,
+            trade.reason
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `flowpulse-unusual-activity-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
     });
 }
-
-function exportToCSV(transactions) {
-    const headers = ['Date', 'Ticker', 'Company', 'Insider', 'Title', 'Type', 'Shares', 'Price', 'Value', 'Ownership Change'];
-
-    const rows = transactions.map(tx => [
-        tx.date,
-        tx.ticker,
-        tx.company,
-        tx.insider,
-        tx.title,
-        transactionTypes[tx.transactionType]?.label || tx.transactionType,
-        tx.shares,
-        tx.pricePerShare.toFixed(2),
-        tx.value,
-        tx.ownershipChange.toFixed(2) + '%'
-    ]);
-
-    const csvContent = [
-        headers.join(','),
-        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `insider-transactions-${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-}
-
-// ============================================
-// Smooth Scroll
-// ============================================
-
-function initSmoothScroll() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                const navHeight = document.querySelector('.navbar').offsetHeight;
-                const targetPosition = target.offsetTop - navHeight - 20;
-
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-
-                // Update active nav link
-                document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-                this.classList.add('active');
-            }
-        });
-    });
-}
-
-// ============================================
-// Scroll Animations
-// ============================================
-
-function animateOnScroll() {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate-slide-up');
-            }
-        });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.card, .chart-card, .insight-card, .cluster-card, .feature-card').forEach(el => {
-        observer.observe(el);
-    });
-}
-
-// ============================================
-// Navigation Active State on Scroll
-// ============================================
-
-window.addEventListener('scroll', () => {
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-link');
-
-    let current = '';
-
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop - 100;
-        const sectionHeight = section.offsetHeight;
-
-        if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
-            current = section.getAttribute('id');
-        }
-    });
-
-    navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${current}`) {
-            link.classList.add('active');
-        }
-    });
-});
 
 // ============================================
 // Utility Functions
@@ -642,13 +310,9 @@ function formatCurrency(value) {
     return '$' + value.toLocaleString();
 }
 
-function formatDate(dateString) {
+function formatExpiry(dateString) {
     const date = new Date(dateString);
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${month}/${day}`;
-}
-
-function formatPercent(value) {
-    return (value * 100).toFixed(1) + '%';
+    const month = date.toLocaleString('en-US', { month: 'short' });
+    const day = date.getDate();
+    return `${month} ${day}`;
 }

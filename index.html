@@ -3,328 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="InsiderPulse - Real-time SEC Form 4 insider trading tracker with advanced filtering and analytics">
-    <meta name="keywords" content="insider trading, SEC filings, Form 4, stock analysis, insider buys, insider sells">
-    <meta property="og:title" content="InsiderPulse | Insider Trading Intelligence">
-    <meta property="og:description" content="Track real-time insider trading with advanced analytics and modern interface">
-    <meta property="og:type" content="website">
-    <title>InsiderPulse | Insider Trading Intelligence</title>
+    <meta name="description" content="FlowPulse - Track unusual options activity and institutional smart money trades from Barchart">
+    <meta name="keywords" content="options flow, unusual activity, smart money, institutional trades, options alerts">
+    <title>FlowPulse | Unusual Options Activity Tracker</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <!-- Navigation -->
     <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <span class="logo-icon">IP</span>
-                <span class="logo-text">InsiderPulse</span>
+        <div class="container">
+            <div class="nav-brand">
+                <span class="brand-icon">📊</span>
+                <span class="brand-name">FlowPulse</span>
             </div>
-            <div class="nav-links">
-                <a href="#dashboard" class="nav-link active">Dashboard</a>
-                <a href="#transactions" class="nav-link">Transactions</a>
-                <a href="#clusters" class="nav-link">Cluster Buys</a>
-                <a href="#analytics" class="nav-link">Analytics</a>
+            <div class="nav-menu">
+                <a href="#feed" class="nav-link active">Unusual Flow</a>
+                <a href="#clusters" class="nav-link">Clusters</a>
+                <a href="#insights" class="nav-link">Insights</a>
             </div>
-            <div class="nav-actions">
-                <span class="live-indicator">
-                    <span class="pulse-dot"></span>
-                    Live SEC Filings
-                </span>
+            <div class="live-badge">
+                <span class="pulse-dot"></span> LIVE
             </div>
         </div>
     </nav>
 
-    <main class="main-content">
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="hero-content">
-                <h1 class="hero-title">Insider Trading Intelligence</h1>
-                <p class="hero-subtitle">Track SEC Form 4 filings in real-time. Follow the smart money with advanced analytics and cluster buy detection.</p>
-                <div class="hero-stats">
-                    <div class="hero-stat">
-                        <span class="stat-value" id="totalValue">$215.8M</span>
-                        <span class="stat-label">Total Volume</span>
-                    </div>
-                    <div class="hero-stat">
-                        <span class="stat-value" id="buyTransactions">87</span>
-                        <span class="stat-label">Buy Transactions</span>
-                    </div>
-                    <div class="hero-stat">
-                        <span class="stat-value" id="buySellRatio">1.95</span>
-                        <span class="stat-label">Buy/Sell Ratio</span>
-                    </div>
-                    <div class="hero-stat">
-                        <span class="stat-value" id="clusterBuys">2</span>
-                        <span class="stat-label">Cluster Buys</span>
-                    </div>
-                </div>
-            </div>
-            <div class="hero-visual">
-                <div class="pulse-ring"></div>
-                <div class="pulse-ring delay-1"></div>
-                <div class="pulse-ring delay-2"></div>
-            </div>
-        </section>
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="container">
+            <h1 class="hero-title">Unusual Options Activity</h1>
+            <p class="hero-subtitle">Track institutional smart money trades · Follow the flow · Data from Barchart</p>
 
-        <!-- Search & Filters Section -->
-        <section class="search-section">
-            <div class="search-container">
-                <div class="search-box">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="searchInput" placeholder="Search by company, ticker, or insider name..." class="search-input">
-                    <button class="search-clear" id="clearSearch" style="display: none;">✕</button>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="statTrades">20</div>
+                    <div class="stat-label">Unusual Trades</div>
                 </div>
-                <div class="filter-controls">
-                    <select id="transactionTypeFilter" class="filter-select">
-                        <option value="all">All Transactions</option>
-                        <option value="P">Purchases Only</option>
-                        <option value="S">Sales Only</option>
-                        <option value="M">Option Exercises</option>
+                <div class="stat-card">
+                    <div class="stat-value" id="statPremium">$42.9M</div>
+                    <div class="stat-label">Total Premium</div>
+                </div>
+                <div class="stat-card stat-bullish">
+                    <div class="stat-value" id="statBullish">16</div>
+                    <div class="stat-label">Bullish Trades</div>
+                </div>
+                <div class="stat-card stat-bearish">
+                    <div class="stat-value" id="statBearish">4</div>
+                    <div class="stat-label">Bearish Trades</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statClusters">3</div>
+                    <div class="stat-label">Cluster Buys</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- What Makes It Unusual -->
+    <section class="info-section">
+        <div class="container">
+            <div class="info-box">
+                <h2>🔍 What Makes a Trade "Unusual"?</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>High Volume/OI Ratio</strong>
+                        <p>Volume significantly higher than open interest (>2.0) indicates abnormal activity</p>
+                    </div>
+                    <div class="info-item">
+                        <strong>Large Premium</strong>
+                        <p>Trades >$500K suggest institutional/smart money positioning</p>
+                    </div>
+                    <div class="info-item">
+                        <strong>Cluster Detection</strong>
+                        <p>Multiple buyers targeting same strike/expiry shows strong conviction</p>
+                    </div>
+                    <div class="info-item">
+                        <strong>Ask-Side Execution</strong>
+                        <p>Aggressive buying at ask price signals urgent positioning</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Alert Filters -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label>Search Symbol</label>
+                    <input type="text" id="searchInput" placeholder="AAPL, TSLA, SPY..." class="filter-input">
+                </div>
+                <div class="filter-group">
+                    <label>Alert Level</label>
+                    <select id="alertFilter" class="filter-select">
+                        <option value="all">All Alerts</option>
+                        <option value="critical">🔴 Critical Only</option>
+                        <option value="high">🟠 High Only</option>
+                        <option value="medium">🟢 Medium Only</option>
                     </select>
-                    <select id="valueFilter" class="filter-select">
-                        <option value="all">All Values</option>
+                </div>
+                <div class="filter-group">
+                    <label>Type</label>
+                    <select id="typeFilter" class="filter-select">
+                        <option value="all">All Types</option>
+                        <option value="Call">Calls Only</option>
+                        <option value="Put">Puts Only</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Min Premium</label>
+                    <select id="premiumFilter" class="filter-select">
+                        <option value="0">All Sizes</option>
                         <option value="1000000">Over $1M</option>
+                        <option value="3000000">Over $3M</option>
                         <option value="5000000">Over $5M</option>
-                        <option value="10000000">Over $10M</option>
                     </select>
-                    <select id="dateFilter" class="filter-select">
-                        <option value="7">Last 7 Days</option>
-                        <option value="14">Last 14 Days</option>
-                        <option value="30">Last 30 Days</option>
-                        <option value="90">Last 90 Days</option>
-                    </select>
-                    <button class="filter-btn-action" id="exportBtn">📥 Export CSV</button>
                 </div>
+                <button id="exportBtn" class="btn-export">📥 Export CSV</button>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Dashboard Section -->
-        <section id="dashboard" class="section">
+    <!-- Unusual Flow Feed -->
+    <section id="feed" class="flow-section">
+        <div class="container">
             <div class="section-header">
-                <h2 class="section-title">📊 Live Dashboard</h2>
-                <p class="section-subtitle">Top insider activity and significant transactions</p>
+                <h2>🔥 Unusual Options Flow</h2>
+                <p class="result-count"><span id="flowCount">20</span> unusual trades detected</p>
             </div>
 
-            <div class="dashboard-grid">
-                <!-- Cluster Buys -->
-                <div class="card card-cluster">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <span class="card-icon">🎯</span>
-                            Cluster Buys
-                        </div>
-                        <span class="card-badge badge-gold">High Conviction</span>
-                    </div>
-                    <div class="cluster-list" id="clusterList">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-
-                <!-- Significant Purchases -->
-                <div class="card card-purchases">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <span class="card-icon">💰</span>
-                            Significant Purchases
-                        </div>
-                        <span class="card-badge badge-green">Bullish Signal</span>
-                    </div>
-                    <div class="stock-list" id="purchasesList">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-
-                <!-- Top Activity -->
-                <div class="card card-activity">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <span class="card-icon">🔥</span>
-                            Top Activity
-                        </div>
-                        <span class="card-badge badge-blue">By Value</span>
-                    </div>
-                    <div class="stock-list" id="activityList">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
+            <div class="flow-feed" id="flowFeed">
+                <!-- Populated by JavaScript -->
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Transactions Table Section -->
-        <section id="transactions" class="section">
+    <!-- Cluster Buys Section -->
+    <section id="clusters" class="clusters-section">
+        <div class="container">
             <div class="section-header">
-                <h2 class="section-title">📋 Recent Insider Transactions</h2>
-                <p class="section-subtitle">Latest SEC Form 4 filings</p>
+                <h2>🎯 Cluster Buys</h2>
+                <p class="section-subtitle">Multiple institutional buyers targeting the same strike — strong conviction signal</p>
             </div>
 
-            <div class="table-card">
-                <div class="table-header">
-                    <h3 class="table-title">All Transactions</h3>
-                    <div class="table-info">
-                        <span id="transactionCount">20 transactions</span>
-                    </div>
-                </div>
-                <div class="table-wrapper">
-                    <table class="insider-table">
-                        <thead>
-                            <tr>
-                                <th class="sortable" data-sort="date">Date</th>
-                                <th class="sortable" data-sort="ticker">Ticker</th>
-                                <th class="sortable" data-sort="company">Company</th>
-                                <th class="sortable" data-sort="insider">Insider</th>
-                                <th>Title</th>
-                                <th class="sortable" data-sort="type">Type</th>
-                                <th class="sortable" data-sort="shares">Shares</th>
-                                <th class="sortable" data-sort="price">Price</th>
-                                <th class="sortable" data-sort="value">Value</th>
-                                <th class="sortable" data-sort="ownership">Ownership Δ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactionsTableBody">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
-                </div>
+            <div class="clusters-grid" id="clustersGrid">
+                <!-- Populated by JavaScript -->
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Cluster Buys Section -->
-        <section id="clusters" class="section">
+    <!-- Insights Section -->
+    <section id="insights" class="insights-section">
+        <div class="container">
             <div class="section-header">
-                <h2 class="section-title">🎯 Cluster Buy Analysis</h2>
-                <p class="section-subtitle">Multiple insiders buying the same stock - strong conviction signal</p>
+                <h2>💡 Smart Money Insights</h2>
+                <p class="section-subtitle">Key takeaways from today's unusual activity</p>
             </div>
 
-            <div class="cluster-grid" id="clusterGrid">
-                <!-- Populated by JS -->
-            </div>
-        </section>
-
-        <!-- Analytics Section -->
-        <section id="analytics" class="section">
-            <div class="section-header">
-                <h2 class="section-title">📈 Market Intelligence</h2>
-                <p class="section-subtitle">Insider sentiment and sector analysis</p>
-            </div>
-
-            <div class="charts-grid">
-                <div class="chart-card">
-                    <h3 class="chart-title">Buy vs Sell Activity (Last 30 Days)</h3>
-                    <div class="chart-container">
-                        <canvas id="buySellChart"></canvas>
-                    </div>
-                </div>
-                <div class="chart-card">
-                    <h3 class="chart-title">Sector Sentiment</h3>
-                    <div class="chart-container">
-                        <canvas id="sectorChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Insights -->
             <div class="insights-grid">
                 <div class="insight-card insight-bullish">
                     <div class="insight-icon">🚀</div>
                     <div class="insight-content">
-                        <h4>Strong Tech Buying</h4>
-                        <p>Technology sector shows heavy insider buying with $78.5M in purchases vs $45.2M in sales. Notable activity in TSLA, NVDA, META, and MSFT with CEOs adding to positions.</p>
-                        <div class="insight-meta">
-                            <span class="meta-tag">+73% Net Bullish</span>
-                            <span class="meta-tag">28 Companies</span>
+                        <h3>Strong Bullish Flow</h3>
+                        <p><strong>16 bullish vs 4 bearish trades</strong> (80% bullish). $36M in call premium vs $7M in puts. Institutions are positioning for upside across tech names.</p>
+                        <div class="insight-tags">
+                            <span class="tag">Call Heavy</span>
+                            <span class="tag">Tech Focused</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="insight-card insight-value">
-                    <div class="insight-icon">💎</div>
+                <div class="insight-card insight-critical">
+                    <div class="insight-icon">🔴</div>
                     <div class="insight-content">
-                        <h4>Cluster Buy Signal: TSLA</h4>
-                        <p>Two Tesla insiders (Elon Musk + Kimbal Musk) purchased $27.3M worth of shares on the same day. This coordinated buying often signals strong conviction in near-term catalysts.</p>
-                        <div class="insight-meta">
-                            <span class="meta-tag">2 Insiders</span>
-                            <span class="meta-tag">$27.3M Total</span>
+                        <h3>Mega Premium Alerts</h3>
+                        <p><strong>3 trades over $3M</strong> detected today. PLTR $5.5M put, NVDA $4.3M call, TSLA $3.9M call. These institutional-size trades signal major positioning.</p>
+                        <div class="insight-tags">
+                            <span class="tag">Whale Activity</span>
+                            <span class="tag">Critical</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="insight-card insight-sector">
-                    <div class="insight-icon">🏦</div>
+                <div class="insight-card insight-cluster">
+                    <div class="insight-icon">🎯</div>
                     <div class="insight-content">
-                        <h4>Financial Sector Strength</h4>
-                        <p>Bank of America shows cluster buying with CEO and Vice Chairman both purchasing. Financial sector overall has 63% net bullish sentiment with $24.3M in buys.</p>
-                        <div class="insight-meta">
-                            <span class="meta-tag">Cluster Buy</span>
-                            <span class="meta-tag">+63% Bullish</span>
+                        <h3>AAPL Cluster Buy</h3>
+                        <p><strong>5 buyers targeting $190 calls</strong> (Jan 16 expiry) with $6.25M total premium. Vol/OI ratio of 3.82 shows extreme activity. Coordinated institutional positioning.</p>
+                        <div class="insight-tags">
+                            <span class="tag">Cluster</span>
+                            <span class="tag">High Conviction</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="insight-card insight-caution">
-                    <div class="insight-icon">⚠️</div>
+                <div class="insight-card insight-info">
+                    <div class="insight-icon">📊</div>
                     <div class="insight-content">
-                        <h4>Notable Insider Selling</h4>
-                        <p>Large sales from Netflix ($44.7M), Palantir ($39.8M), and Apple ($27.3M) CEOs. While routine sales are common, the size and timing warrant attention.</p>
-                        <div class="insight-meta">
-                            <span class="meta-tag">High Value</span>
-                            <span class="meta-tag">Monitor</span>
+                        <h3>Volume Spike Leaders</h3>
+                        <p><strong>SPY, SMCI, RKLB</strong> showing extreme Vol/OI ratios (>6.0). SPY 7.04, SMCI 6.33, RKLB 6.63 — significantly above normal levels indicating unusual institutional interest.</p>
+                        <div class="insight-tags">
+                            <span class="tag">Volume Spike</span>
+                            <span class="tag">High Vol/OI</span>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Key Features Section -->
-        <section class="section features-section">
-            <div class="section-header">
-                <h2 class="section-title">Why InsiderPulse?</h2>
-                <p class="section-subtitle">Modern tools for tracking institutional conviction</p>
+    <!-- Top Tickers Section -->
+    <section class="tickers-section">
+        <div class="container">
+            <h2>📈 Most Active Tickers</h2>
+            <div class="tickers-grid" id="tickersGrid">
+                <!-- Populated by JavaScript -->
             </div>
+        </div>
+    </section>
 
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Real-Time Updates</h3>
-                    <p>SEC Form 4 filings tracked and parsed as they're filed. Be the first to know when insiders are buying or selling.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Cluster Detection</h3>
-                    <p>Automatically identifies when multiple insiders buy the same stock - a strong conviction signal often missed by investors.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔍</div>
-                    <h3>Advanced Filtering</h3>
-                    <p>Filter by transaction type, value, date, company, and insider. Export data for your own analysis.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Smart Analytics</h3>
-                    <p>Track sector sentiment, buy/sell ratios, and ownership changes. See the big picture with visual analytics.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💎</div>
-                    <h3>Modern Interface</h3>
-                    <p>Clean, fast, and intuitive. No outdated designs - just the data you need, beautifully presented.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📈</div>
-                    <h3>Ownership Tracking</h3>
-                    <p>See exactly how each transaction affects insider ownership percentages and identify accumulation patterns.</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
+    <!-- Footer -->
     <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-logo">
-                <span class="logo-icon">IP</span>
-                <span class="logo-text">InsiderPulse</span>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <strong>FlowPulse</strong> — Unusual Options Activity Tracker
+                </div>
+                <div class="footer-disclaimer">
+                    Data from Barchart.com · Tracks institutional/smart money options trades · For informational purposes only · Not investment advice
+                </div>
+                <div class="footer-copyright">
+                    © 2026 FlowPulse · Inspired by UnusualWhales
+                </div>
             </div>
-            <p class="footer-disclaimer">Data sourced from SEC EDGAR filings. For informational purposes only. Not investment advice. Insider trading is legal when properly disclosed via Form 4.</p>
-            <p class="footer-copyright">© 2026 InsiderPulse. SEC data updated in real-time.</p>
         </div>
     </footer>
 
